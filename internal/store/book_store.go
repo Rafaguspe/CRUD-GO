@@ -33,12 +33,12 @@ func (s *store) GetAll() ([]*model.Book, error) {
 
 	var books []*model.Book
 	for rows.Next() {
-		var b *model.Book
+		b := model.Book{}
 		if err := rows.Scan(&b.ID, &b.Title, &b.Author); err != nil {
 			return nil, err
 		}
 
-		books = append(books, b)
+		books = append(books, &b)
 	}
 
 	return books, nil
@@ -47,18 +47,18 @@ func (s *store) GetAll() ([]*model.Book, error) {
 func (s *store) GetByID(id int) (*model.Book, error) {
 	q := `SELECT id,title,author FROM books WHERE id= ?`
 
-	var b *model.Book
+	b := model.Book{}
 	err := s.db.QueryRow(q, id).Scan(&b.ID, &b.Title, &b.Author)
 
 	if err != nil {
 		return nil, err
 	}
 
-	return b, nil
+	return &b, nil
 }
 
 func (s *store) Create(book *model.Book) (*model.Book, error) {
-	q := `INSERT INTO TABLE books (title,author) VALUES (?,?)`
+	q := `INSERT INTO  books (title,author) VALUES (?,?)`
 	resp, err := s.db.Exec(q, book.Title, book.Author)
 
 	if err != nil {
